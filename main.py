@@ -12,6 +12,10 @@ tableID = 0
 _firstName = None
 _lastName = None
 _email = None
+_address = None
+_city = None
+_state = None
+_zipcode = None 
 
 #endregion
 
@@ -40,7 +44,11 @@ def createDatabase():
 		ID INTEGER, 
 		first_name TEXT, 
 		last_name TEXT, 
-		email TEXT
+		email TEXT,
+		address TEXT,
+		city TEXT,
+		state TEXT,
+		zipcode INTEGER
 		) """)
 
 	# commit changes to database
@@ -64,7 +72,7 @@ def showTable():
 	items = c.fetchall()
 
 	for item in items:
-		print(str(item[0]) + " " + item[1] + " " + item[2] + " " + item[3])
+		print(str(item[0]) + " " + item[1] + " " + item[2] + " " + item[3] + " " + item[4] + " " + item[5] + " " + item[6] + " " + item[7] + " " + item[8])
 
 	# commit changes to database
 	conn.commit()
@@ -73,15 +81,23 @@ def showTable():
 	conn.close()
 
 # Create Update function to update a record
-def update(orderID, firstName, lastName, email):
+def update(orderID, firstName, lastName, email, address, city, state, zipcode):
 
 	global _firstName
 	global _lastName
 	global _email
+	global _address
+	global _city
+	global _state
+	global _zipcode
 
 	_firstName = firstName
 	_lastName = lastName
 	_email = email
+	_address = address
+	_city = city
+	_state = state
+	_zipcode = zipcode
 
 	# Create a database or connect to one
 	conn = sqlite3.connect('FirstTry.db')
@@ -92,12 +108,20 @@ def update(orderID, firstName, lastName, email):
 	c.execute("""UPDATE testing SET
 	first_name = :first,
 	last_name = :last,
-	email = :eml
+	email = :eml,
+	address = :addrss,
+	city = :cty,
+	state = :stt,
+	zipcode = :zcode
 	WHERE ID = :tID""", 
 	{
 		'first': _firstName,
 		'last': _lastName,
 		'eml': _email,
+		'addrss': _address,
+		'cty': _city,
+		'stt': _state,
+		'zcode': _zipcode,
 		'tID': orderID
 	})
 
@@ -108,16 +132,9 @@ def update(orderID, firstName, lastName, email):
 	conn.close()
 
 # insert a new record to table
-def insert(firstName, lastName, email):
+def insert(firstName, lastName, email, address, city, state, zipcode):
 
 	global tableID
-	global _firstName
-	global _lastName
-	global _email
-
-	_firstName = firstName
-	_lastName = lastName
-	_email = email
 
 	# Create a database or connect to one
 	conn = sqlite3.connect('FirstTry.db')
@@ -130,10 +147,10 @@ def insert(firstName, lastName, email):
 	tableID += 1
 
 	# list all the arguments needed to insert into the table
-	parameters = [tableID, _firstName, _lastName, _email]
+	parameters = [tableID, firstName, lastName, email, address, city, state, zipcode]
 
 	# update table, insert data to table
-	c.execute("INSERT INTO testing VALUES (?, ?, ?, ?) ", parameters)
+	c.execute("INSERT INTO testing VALUES (?, ?, ?, ?, ?, ?, ?, ?) ", parameters)
 
 	#Commit Changes
 	conn.commit()
@@ -142,7 +159,7 @@ def insert(firstName, lastName, email):
 	conn.close()
 
 # query function, does what show table does, but for the GUI instead of the console
-def query():
+def show_query():
 	
 	# Create a database or connect to one
 	conn = sqlite3.connect('FirstTry.db')
@@ -155,15 +172,21 @@ def query():
 	# # [0] will print the whole tuple, [0][#] will print the item in tuple
 	items = c.fetchall()
 
-	# change this for query function
+	print_Items = ''
+
+	# change this for query function, + "\t" + str(item[1]) + ", "
 	for item in items:
-		print(str(item[0]) + " " + item[1] + " " + item[2] + " " + item[3])
+		print_Items += str(item[0]) + ", " + str(item[1]) + ", " + str(item[2]) + ", " + str(item[3]) + ", " + str(item[4]) + ", " + str(item[5]) + ", " + str(item[6]) + ", " + str(item[7]) + "\n"
+
+	print(print_Items)
 
 	# commit changes to database
 	conn.commit()
 
 	#close database connection
 	conn.close()
+
+	return print_Items
 
 # delete query from record
 def delete(orderID):
@@ -183,11 +206,11 @@ def delete(orderID):
 	# Close Connection 
 	conn.close()
 
-createDatabase()
-#insert("two", "man", "tm@gmail.com")
-#update(1, "apple", "man", "am@gmail.com")
+#createDatabase()
+#insert("anonymous", "penguin", "ap@gmail.com")
+#update(2, "two", "man", "atm@gmail.com")
 #delete(2)
-showTable()
+#showTable()
 #print(str(_firstName) + " " + str(_lastName) + " " + str(_email) + " " + str(tableID))
 
 #endregion
