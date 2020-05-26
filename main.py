@@ -12,10 +12,10 @@ tableID = 0
 _firstName = None
 _lastName = None
 _email = None
-_address = None
-_city = None
-_state = None
-_zipcode = None 
+_income = None
+_expenses = None
+_revenue = None
+_taxes = None 
 
 #endregion
 
@@ -31,7 +31,7 @@ os.system('cls') # clears the terminal from code, use 'clear' on linux/Mac
 def createDatabase():
 
 	#searches for database with name provided to connect to, if no db found, it will create one
-	conn = sqlite3.connect('FirstTry.db')
+	conn = sqlite3.connect('Database.db')
 
 	# create cursor to edit and work the database
 	c = conn.cursor()
@@ -45,10 +45,10 @@ def createDatabase():
 		first_name TEXT, 
 		last_name TEXT, 
 		email TEXT,
-		address TEXT,
-		city TEXT,
-		state TEXT,
-		zipcode INTEGER
+		income INTEGER,
+		expenses INTEGER,
+		revenue INTEGER,
+		taxes INTEGER
 		) """)
 
 	# commit changes to database
@@ -61,7 +61,7 @@ def createDatabase():
 def showTable():
 	
 	# Create a database or connect to one
-	conn = sqlite3.connect('FirstTry.db')
+	conn = sqlite3.connect('Database.db')
 	# Create cursor
 	c = conn.cursor()
 
@@ -72,7 +72,7 @@ def showTable():
 	items = c.fetchall()
 
 	for item in items:
-		print(str(item[0]) + " " + item[1] + " " + item[2] + " " + item[3] + " " + item[4] + " " + item[5] + " " + item[6] + " " + item[7] + " " + item[8])
+		print(str(item[0]) + " " + item[1] + " " + item[2] + " " + item[3] + " " + item[4] + " " + item[5] + " " + item[6] + " " + item[7] )
 
 	# commit changes to database
 	conn.commit()
@@ -81,26 +81,26 @@ def showTable():
 	conn.close()
 
 # Create Update function to update a record
-def update(orderID, firstName, lastName, email, address, city, state, zipcode):
+def update(orderID, firstName, lastName, email, income, expenses, revenue, taxes):
 
 	global _firstName
 	global _lastName
 	global _email
-	global _address
-	global _city
-	global _state
-	global _zipcode
+	global _income
+	global _expenses
+	global _revenue
+	global _taxes
 
 	_firstName = firstName
 	_lastName = lastName
 	_email = email
-	_address = address
-	_city = city
-	_state = state
-	_zipcode = zipcode
+	_income = income
+	_expenses = expenses
+	_revenue = revenue
+	_taxes = taxes
 
 	# Create a database or connect to one
-	conn = sqlite3.connect('FirstTry.db')
+	conn = sqlite3.connect('Database.db')
 	# Create cursor
 	c = conn.cursor()
 
@@ -109,19 +109,19 @@ def update(orderID, firstName, lastName, email, address, city, state, zipcode):
 	first_name = :first,
 	last_name = :last,
 	email = :eml,
-	address = :addrss,
-	city = :cty,
-	state = :stt,
-	zipcode = :zcode
+	income = :inc,
+	expenses = :exp,
+	revenue = :rev,
+	taxes = :tx
 	WHERE ID = :tID""", 
 	{
 		'first': _firstName,
 		'last': _lastName,
 		'eml': _email,
-		'addrss': _address,
-		'cty': _city,
-		'stt': _state,
-		'zcode': _zipcode,
+		'inc': _income,
+		'exp': _expenses,
+		'rev': _revenue,
+		'tx': _taxes,
 		'tID': orderID
 	})
 
@@ -132,12 +132,12 @@ def update(orderID, firstName, lastName, email, address, city, state, zipcode):
 	conn.close()
 
 # insert a new record to table
-def insert(firstName, lastName, email, address, city, state, zipcode):
+def insert(firstName, lastName, email, income, expenses, revenue, taxes):
 
 	global tableID
 
 	# Create a database or connect to one
-	conn = sqlite3.connect('FirstTry.db')
+	conn = sqlite3.connect('Database.db')
 	# Create cursor
 	c = conn.cursor()
 
@@ -147,7 +147,7 @@ def insert(firstName, lastName, email, address, city, state, zipcode):
 	tableID += 1
 
 	# list all the arguments needed to insert into the table
-	parameters = [tableID, firstName, lastName, email, address, city, state, zipcode]
+	parameters = [tableID, firstName, lastName, email, income, expenses, revenue, taxes]
 
 	# update table, insert data to table
 	c.execute("INSERT INTO testing VALUES (?, ?, ?, ?, ?, ?, ?, ?) ", parameters)
@@ -162,7 +162,7 @@ def insert(firstName, lastName, email, address, city, state, zipcode):
 def show_query():
 	
 	# Create a database or connect to one
-	conn = sqlite3.connect('FirstTry.db')
+	conn = sqlite3.connect('Database.db')
 	# Create cursor
 	c = conn.cursor()
 
@@ -173,12 +173,17 @@ def show_query():
 	items = c.fetchall()
 
 	print_Items = ''
+	playlist = []
+	queryOutput = ''
 
-	# change this for query function, + "\t" + str(item[1]) + ", "
+	# change this for query function, + "\t" + str(item[1]) + ", " + "\n"
 	for item in items:
-		print_Items += str(item[0]) + ", " + str(item[1]) + ", " + str(item[2]) + ", " + str(item[3]) + ", " + str(item[4]) + ", " + str(item[5]) + ", " + str(item[6]) + ", " + str(item[7]) + "\n"
+		print_Items += str(item[0]) + ", " + str(item[1]) + ", " + str(item[2]) + ", " + str(item[3]) + ", " + str(item[4]) + ", " + str(item[5]) + ", " + str(item[6]) + ", " + str(item[7]) + " \n" 
+		playlist.append(print_Items)
+		queryOutput += print_Items
+		print_Items = ''
 
-	print(print_Items)
+	#print(queryOutput)
 
 	# commit changes to database
 	conn.commit()
@@ -186,13 +191,13 @@ def show_query():
 	#close database connection
 	conn.close()
 
-	return print_Items
+	return playlist
 
 # delete query from record
 def delete(orderID):
 
 	# Create a database or connect to one
-	conn = sqlite3.connect('FirstTry.db')
+	conn = sqlite3.connect('Database.db')
 	# Create cursor
 	c = conn.cursor()
 
@@ -205,12 +210,5 @@ def delete(orderID):
 
 	# Close Connection 
 	conn.close()
-
-#createDatabase()
-#insert("anonymous", "penguin", "ap@gmail.com")
-#update(2, "two", "man", "atm@gmail.com")
-#delete(2)
-#showTable()
-#print(str(_firstName) + " " + str(_lastName) + " " + str(_email) + " " + str(tableID))
 
 #endregion
