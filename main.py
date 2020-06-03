@@ -193,6 +193,41 @@ def show_query():
 
 	return playlist
 
+# output data from the database, in order to be displayed in graph
+def plotShow():
+
+	#searches for database with name provided to connect to, if no db found, it will create one
+	conn = sqlite3.connect('Database.db')
+
+	# create cursor to edit and work the database
+	c = conn.cursor()
+
+	c.execute('SELECT * FROM testing') 
+	data = c.fetchall()
+
+	name = []
+	email = []
+	income = []
+	expense = []
+	revenue = []
+	tax = []
+
+	for row in data:
+		name.append(row[1] + ' ' + row[2])
+		email.append(row[3])
+		income.append(row[4])
+		expense.append(row[5])
+		revenue.append(row[6])
+		tax.append(row[7])
+
+	# commit changes to database
+	conn.commit()
+
+	#close database connection
+	conn.close()
+
+	return name, email, income, expense, revenue, tax
+
 # delete query from record
 def delete(orderID):
 

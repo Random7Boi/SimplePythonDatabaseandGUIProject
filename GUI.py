@@ -1,19 +1,40 @@
+#region Import modules and packages
+
+#Import ktinker and basic modules
 from tkinter import *
 import tkinter.messagebox
 from PIL import ImageTk,Image
 from main import *
 import os
 
+# import mathplotlib modules
+import matplotlib.pyplot as plt #pip install matplotlib
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.figure import Figure
+from matplotlib import style
+style.use('fivethirtyeight')
+
 # styling imports
 from tkinter import ttk
 from ttkthemes import themed_tk as tk 
 #pip install ttkthemes before running code
 
-os.system('cls') # clears the terminal from code, use 'clear' on linux/Mac
+#endregion
+
+#region variables
 
 newPlaylist = []
 filteredList = []
 finalQueryList = []
+checkXState = None
+checkYState = None
+toggle = False
+drawn = False
+
+#endregion
+
+os.system('cls') # clears the terminal from code, use 'clear' on linux/Mac
 
 root = tk.ThemedTk()
 # Returns a list of all themes that can be set
@@ -22,7 +43,7 @@ root.get_themes()
 root.set_theme("black")         
 root.title('Python SQLite3 Ktinker Project!')
 root.iconbitmap('Images/queue-24px.ico')
-root.geometry("700x750")
+root.geometry("750x800")
 root.configure(bg = '#424242')
 
 # Create the menubar
@@ -32,6 +53,30 @@ root.config(menu=menubar, bg = '#424242')
 # create space
 spaceFrame = ttk.Label(root, text="SQLite3 Database Viewer:", relief=GROOVE, anchor=CENTER, font = 'Times 12 italic')
 spaceFrame.grid(row = 0, column = 2, pady = 10, ipadx = 10)
+
+#region plot graph setup area
+
+# create and expanding frame for the plot to show
+expandingFrame = ttk.Frame(root)
+expandingFrame.grid(row = 17, column = 0, columnspan = 5, pady = 10, padx = 10)
+
+expandingFrameTwo = ttk.Frame(root)
+expandingFrameTwo.grid(row = 19, column = 0, columnspan = 5, pady = 10, padx = 10)
+expandingFrameTwo.grid_remove()
+
+# title , bg = "#424242", fg = '#FFFFFF'
+plotTitle = Label(expandingFrameTwo, text = "Plot Diagram", relief=GROOVE, font = 'Times 12 italic', bg = '#424242', fg = '#FFFFFF')
+plotTitle.pack(side=TOP, pady = 10)
+
+yAxisLabel = Label(expandingFrameTwo, text='', relief=GROOVE, font = 'Times 12 italic',bg = '#424242', fg = '#FFFFFF')
+yAxisLabel.pack(side=LEFT, padx=20)
+
+xAxisLabel = Label(expandingFrameTwo, text='', relief=GROOVE, font = 'Times 12 italic', bg = '#424242', fg = '#FFFFFF')
+xAxisLabel.pack(side=BOTTOM, pady = 5)
+
+#endregion
+
+#region text boxes and labels
 
 # Create Text Boxes
 f_name = Entry(root, width=30)
@@ -73,9 +118,13 @@ queryLabel.grid(row=14, column=0, pady=30, ipadx = 5, columnspan = 5)
 editLabel = Label(root, text="Edit the Table:", bg = '#424242', fg = '#FFFFFF', relief=RAISED, anchor=CENTER, font = 'Times 12 italic')
 editLabel.grid(row=1, column=3, ipadx = 5, columnspan = 5)
 
+#endregion
+
 # create the list box
 queryList = Listbox(root, bg = '#D8D8D8', fg = '#424242', width = 70, height = 20)
 queryList.grid(row = 15, column = 0, columnspan = 5, padx = 30)
+
+#region functions
 
 # add items to record from GUI
 def addToRecord():
@@ -224,8 +273,139 @@ def createNewDatabase():
 def closeWindow():
     root.destroy()
 
+# obligatory about us menu
 def about_us():
     tkinter.messagebox.showinfo('About SQLite3 Database Manager!', 'This is a database manager used to create and query databases using a GUI frontend.')
+
+#region checkbox functions
+
+def namePlace():
+    global checkXState
+    if var1.get() == 1:
+        checkXState = 'name'
+    else:
+        checkXState = None
+
+def emailPlace():
+    global checkXState
+    if var2.get() == 1:
+        checkXState = 'email'
+    else:
+        checkXState = None
+
+def incomePlace():
+    global checkYState
+    if var3.get() == 1:
+        checkYState = 'income'
+    else:
+        checkYState = None
+
+def expPlace():
+    global checkYState
+    if var4.get() == 1:
+        checkYState = 'exp'
+    else:
+        checkYState = None
+
+def revPlace():
+    global checkYState
+    if var5.get() == 1:
+        checkYState = 'rev'
+    else:
+        checkYState = None
+
+def taxPlace():
+    global checkYState
+    if var6.get() == 1:
+        checkYState = 'tax'
+    else:
+        checkYState = None
+
+#endregion
+
+# function that converts SQL data into plot graph
+def plotAPI():
+
+    global drawn
+    xList = [] 
+    yList = []
+
+    if drawn == False:
+
+        global f
+        global canvas
+        global toolbar
+        global checkXState
+        global checkYState
+        global xAxisLabel, yAxisLabel
+
+        name, email, income, expense, rev, tax = plotShow()
+        f = Figure(figsize=(8,5), dpi = 80, facecolor='#A4A4A4')
+        plt = f.add_subplot(111)
+
+        if checkXState == 'name':
+            xList = name
+            xAxisLabel['text'] ='Names'
+        elif checkXState == 'email':
+            xList = email
+            xAxisLabel['text'] = 'Emails'
+        else:
+            xList = None
+            xAxisLabel['text'] = ''
+
+        if checkYState == 'income':
+            yList = income
+            yAxisLabel['text'] = 'Incomes'
+        elif checkYState == 'exp':
+            yList = expense
+            yAxisLabel['text'] = 'Expenses'
+        elif checkYState == 'rev':
+            yList = rev
+            yAxisLabel['text'] = 'Revenues'
+        elif checkYState == 'tax':
+            yList = tax
+            yAxisLabel['text'] = 'Taxes'
+        else:
+            yList = None
+            yAxisLabel['text'] = ''
+
+        #print(xAxisLabel['text'], yAxisLabel['text'])
+        plt.plot(xList, yList)
+
+        canvas = FigureCanvasTkAgg(f, master=expandingFrameTwo)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tkinter.BOTTOM, fill=tkinter.BOTH, expand=1)
+
+        toolbar = NavigationToolbar2Tk(canvas, expandingFrameTwo)
+        toolbar.update()
+        canvas._tkcanvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
+
+        drawn = True
+
+    else:
+        drawn = False
+        f.clf()
+        canvas.get_tk_widget().destroy()
+        toolbar.destroy()
+
+# expands GUI geomtery in order to show plot graph when button is clicked
+def changeGeometry():
+
+    global toggle
+    plotAPI()
+    #print(drawn)
+    
+    if toggle != True:
+        root.geometry("1000x1300")
+        expandingFrameTwo.grid()
+        toggle = True
+    else:
+        root.geometry("750x800")
+        expandingFrameTwo.grid_remove()
+        plt.close()
+        toggle = False
+
+#endregion
 
 # Create Submit Button 
 submit_btn = Button(root, text="Add Record To Database", bg = '#0B3861', fg = '#FFFFFF', activebackground = '#F3F781', command = addToRecord)
@@ -243,6 +423,10 @@ delete_btn.grid(row=8, column=3, columnspan=2, pady=10, padx=10, ipadx=5)
 edit_btn = Button(root, text="Edit Record", bg = '#0B3861', fg = '#FFFFFF', activebackground = '#F3F781', command = Modify)
 edit_btn.grid(row=3, column=3, columnspan = 2, padx=10, ipadx = 5)
 
+# toggle button to test toggle function and changing geometry at runtime
+toggle_btn = Button(root, text="Show Plot Diagram", bg = '#0B3861', fg = '#FFFFFF', activebackground = '#F3F781', command = changeGeometry)
+toggle_btn.grid(row=5, column=3, columnspan = 2, padx=10, ipadx = 5)
+
 # Menus, used for creating database and secondary window close button
 subMenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="File", menu=subMenu)
@@ -253,6 +437,32 @@ subMenu.add_command(label = "Exit", command = closeWindow)
 subMenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="Help", menu=subMenu)
 subMenu.add_command(label="About Us", command=about_us)
+
+#region checkboxes
+
+var1 = IntVar()
+var2 = IntVar()
+var3 = IntVar()
+var4 = IntVar()
+var5 = IntVar()
+var6 = IntVar()
+
+c1 = ttk.Checkbutton(expandingFrame, text='Name', variable = var1, onvalue=1, offvalue=0, command = namePlace)
+c1.pack(side = LEFT, padx = 2)
+c2 = ttk.Checkbutton(expandingFrame, text='Email', variable = var2, onvalue=1, offvalue=0, command = emailPlace)
+c2.pack(side = LEFT, padx = 2)
+seperator = ttk.Label(expandingFrame, text=' | ')
+seperator.pack(side = LEFT, padx = 2)
+c3 = ttk.Checkbutton(expandingFrame, text='Income', variable = var3, onvalue=1, offvalue=0, command = incomePlace)
+c3.pack(side = LEFT, padx = 2)
+c4 = ttk.Checkbutton(expandingFrame, text='Expense', variable = var4, onvalue=1, offvalue=0, command = expPlace)
+c4.pack(side = LEFT, padx = 2)
+c5 = ttk.Checkbutton(expandingFrame, text='Revenue', variable = var5, onvalue=1, offvalue=0, command = revPlace)
+c5.pack(side = LEFT, padx = 2)
+c6 = ttk.Checkbutton(expandingFrame, text='Tax', variable = var6, onvalue=1, offvalue=0, command = taxPlace)
+c6.pack(side = LEFT, padx = 2)
+
+#endregion
 
 # when closing window:
 root.protocol("WM_DELETE_WINDOW", closeWindow)
