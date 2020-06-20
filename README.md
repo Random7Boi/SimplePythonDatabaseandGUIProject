@@ -1,2 +1,3 @@
-# SimpleMVCDatabase
-A Simple Database designed with MVC in mind, uses Ktinker for View and controller inputs, and uses SQLite3 for database storage and management!
+# Simple Python Database and Gui Project
+
+A simple database project made using python, uses SQlite3 for database table creation and management, uses Ktinker for GUI creation and interaction with the User.
