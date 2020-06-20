@@ -4,8 +4,7 @@
 from tkinter import *
 import tkinter.messagebox
 from PIL import ImageTk,Image
-from main import *
-import os
+from Database import *
 
 # import mathplotlib modules
 import matplotlib.pyplot as plt #pip install matplotlib
@@ -31,10 +30,11 @@ checkXState = None
 checkYState = None
 toggle = False
 drawn = False
+appOpen = False
 
 #endregion
 
-os.system('cls') # clears the terminal from code, use 'clear' on linux/Mac
+#region GUI setup
 
 root = tk.ThemedTk()
 # Returns a list of all themes that can be set
@@ -54,8 +54,6 @@ root.config(menu=menubar, bg = '#424242')
 spaceFrame = ttk.Label(root, text="SQLite3 Database Viewer:", relief=GROOVE, anchor=CENTER, font = 'Times 12 italic')
 spaceFrame.grid(row = 0, column = 2, pady = 10, ipadx = 10)
 
-#region plot graph setup area
-
 # create and expanding frame for the plot to show
 expandingFrame = ttk.Frame(root)
 expandingFrame.grid(row = 17, column = 0, columnspan = 5, pady = 10, padx = 10)
@@ -73,10 +71,6 @@ yAxisLabel.pack(side=LEFT, padx=20)
 
 xAxisLabel = Label(expandingFrameTwo, text='', relief=GROOVE, font = 'Times 12 italic', bg = '#424242', fg = '#FFFFFF')
 xAxisLabel.pack(side=BOTTOM, pady = 5)
-
-#endregion
-
-#region text boxes and labels
 
 # Create Text Boxes
 f_name = Entry(root, width=30)
@@ -118,11 +112,11 @@ queryLabel.grid(row=14, column=0, pady=30, ipadx = 5, columnspan = 5)
 editLabel = Label(root, text="Edit the Table:", bg = '#424242', fg = '#FFFFFF', relief=RAISED, anchor=CENTER, font = 'Times 12 italic')
 editLabel.grid(row=1, column=3, ipadx = 5, columnspan = 5)
 
-#endregion
-
 # create the list box
 queryList = Listbox(root, bg = '#D8D8D8', fg = '#424242', width = 70, height = 20)
 queryList.grid(row = 15, column = 0, columnspan = 5, padx = 30)
+
+#endregion
 
 #region functions
 
@@ -172,7 +166,7 @@ def Query():
     del filteredList[:]
 
     #print(filteredList)
-    print(finalQueryList)
+    #print(finalQueryList)
     #print(output)
     # query_label = Label(root, text=output, bg = '#424242', fg = '#FFFFFF')
     # query_label.grid(row=13, column=0, columnspan=2)
@@ -271,6 +265,7 @@ def createNewDatabase():
 
 # destroy window function
 def closeWindow():
+    appOpen = False
     root.destroy()
 
 # obligatory about us menu
@@ -283,43 +278,57 @@ def namePlace():
     global checkXState
     if var1.get() == 1:
         checkXState = 'name'
+        var2.set(0)
     else:
-        checkXState = None
+        checkXState = ''
 
 def emailPlace():
     global checkXState
     if var2.get() == 1:
         checkXState = 'email'
+        var1.set(0)
     else:
-        checkXState = None
+        checkXState = ''
 
 def incomePlace():
     global checkYState
     if var3.get() == 1:
         checkYState = 'income'
+        var4.set(0)
+        var5.set(0)
+        var6.set(0)
     else:
-        checkYState = None
+        checkYState = ''
 
 def expPlace():
     global checkYState
     if var4.get() == 1:
         checkYState = 'exp'
+        var3.set(0)
+        var5.set(0)
+        var6.set(0)
     else:
-        checkYState = None
+        checkYState = ''
 
 def revPlace():
     global checkYState
     if var5.get() == 1:
         checkYState = 'rev'
+        var3.set(0)
+        var4.set(0)
+        var6.set(0)
     else:
-        checkYState = None
+        checkYState = ''
 
 def taxPlace():
     global checkYState
     if var6.get() == 1:
         checkYState = 'tax'
+        var3.set(0)
+        var4.set(0)
+        var5.set(0)
     else:
-        checkYState = None
+        checkYState = ''
 
 #endregion
 
@@ -338,6 +347,12 @@ def plotAPI():
         global checkXState
         global checkYState
         global xAxisLabel, yAxisLabel
+        name = []
+        email = []
+        income = []
+        expense = []
+        rev = []
+        tax = []
 
         name, email, income, expense, rev, tax = plotShow()
         f = Figure(figsize=(8,5), dpi = 80, facecolor='#A4A4A4')
@@ -369,7 +384,6 @@ def plotAPI():
             yList = None
             yAxisLabel['text'] = ''
 
-        #print(xAxisLabel['text'], yAxisLabel['text'])
         plt.plot(xList, yList)
 
         canvas = FigureCanvasTkAgg(f, master=expandingFrameTwo)
@@ -393,10 +407,9 @@ def changeGeometry():
 
     global toggle
     plotAPI()
-    #print(drawn)
     
     if toggle != True:
-        root.geometry("1000x1300")
+        root.geometry("800x1300")
         expandingFrameTwo.grid()
         toggle = True
     else:
@@ -406,6 +419,8 @@ def changeGeometry():
         toggle = False
 
 #endregion
+
+#region buttons and menus
 
 # Create Submit Button 
 submit_btn = Button(root, text="Add Record To Database", bg = '#0B3861', fg = '#FFFFFF', activebackground = '#F3F781', command = addToRecord)
@@ -438,6 +453,8 @@ subMenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="Help", menu=subMenu)
 subMenu.add_command(label="About Us", command=about_us)
 
+#endregion
+
 #region checkboxes
 
 var1 = IntVar()
@@ -464,7 +481,9 @@ c6.pack(side = LEFT, padx = 2)
 
 #endregion
 
+#region misc
+
 # when closing window:
 root.protocol("WM_DELETE_WINDOW", closeWindow)
 
-root.mainloop()
+#endregion
